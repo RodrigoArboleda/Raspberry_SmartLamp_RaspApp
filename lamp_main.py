@@ -22,8 +22,11 @@ advertise_service( server_sock, "LampRasp",
 
 class connection_bluetooth(Thread):
 
-	def __init__ (self):
+	client_sock = -1
+
+	def __init__ (self, client_sock_par):
 		Thread.__init__(self)
+		client_sock = client_sock_par
 	def run(self):
 		while True:
 			try:
@@ -59,7 +62,7 @@ def main():
 
 			client_sock, client_info = server_sock.accept()
 			
-			t = connection_bluetooth()
+			t = connection_bluetooth(client_sock)
 			t.start()
 
 			thread_list.append(t)
