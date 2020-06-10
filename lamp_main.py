@@ -23,13 +23,13 @@ advertise_service( server_sock, "LampRasp",
                     )
 
 def connection_bluetooth(client_sock):
-	
+
+	client_sock.settimeout(TIME_OUT_SOCK)	
 	timeOut = 0
 
 	while timeOut < 1440:
 		print(timeOut)
 		try:
-			data = "!ERROR"
 			data = client_sock.recv(3)
 			if len(data) == 0: break
 			print "received [%s]" % data
@@ -63,7 +63,6 @@ def main():
 			print ("Waiting for connection on RFCOMM channel %d" % port)
 
 			client_sock, client_info = server_sock.accept()
-			client_sock.settimeout(TIME_OUT_SOCK)
 			t = threading.Thread(target=connection_bluetooth, args=(client_sock,))
 			t.start()
 
