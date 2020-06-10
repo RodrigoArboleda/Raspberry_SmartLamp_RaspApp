@@ -55,7 +55,7 @@ def main():
 
 			client_sock, client_info = server_sock.accept()
 			
-			t = threading.Thread(target=connection_bluetooth, args=(client_sock),)
+			t = threading.Thread(target=connection_bluetooth, args=(client_sock,))
 			t.start()
 
 			thread_list.append(t)
