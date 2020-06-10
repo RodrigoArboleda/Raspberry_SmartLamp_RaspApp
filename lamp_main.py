@@ -33,11 +33,9 @@ def connection_bluetooth(client_sock):
 			ready = select.select([client_sock], [], [], 10)
 			if ready[0]:
 				data = client_sock.recv(3)
-			if len(data) == 0: break
-			else:
+			if len(data) == 0:
 				client_sock.close()
 				break
-
 			print "received [%s]" % data
 			if data == 'oi':
 				print("FUNCIONA!!!!!")
