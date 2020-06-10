@@ -34,10 +34,11 @@ def connection_bluetooth(client_sock):
 			if ready[0]:
 				data = client_sock.recv(3)
 			if len(data) == 0: break
-			print "received [%s]" % data
 			else:
 				client_sock.close()
 				break
+
+			print "received [%s]" % data
 			if data == 'oi':
 				print("FUNCIONA!!!!!")
 			elif data == 'kk':
