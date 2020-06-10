@@ -25,6 +25,32 @@ class connection_bluetooth(Thread):
 	def __init__ (self):
 		Thread.__init__(self)
 	def run(self):
+		while True:
+			try:
+				data = client_sock.recv(3)
+				if len(data) == 0: break
+				print "received [%s]" % data
+
+				if data == 'oi':
+					print("FUNCIONA!!!!!")
+				elif data == 'kk':
+					print("FUNCIONA DE MAIS MANO!!!!")
+				elif data == 'qui':
+					client_sock.close()
+					server_sock.close()
+					break
+				else:
+					print("slá")
+
+			except IOError:
+				client_sock.close()
+				server_sock.close()
+				break
+
+			except KeyboardInterrupt:
+				client_sock.close()
+				server_sock.close()
+				break
 		
 
 
@@ -56,30 +82,9 @@ def main():
 					print("Thread finished")
 			time.sleep(TIME_VF_THREAD)
 
-#
-#		print "Accepted connection from ", client_info
-#
-#		try:
-#				data = client_sock.recv(3)
-#				if len(data) == 0: break
-#				print "received [%s]" % data
-#
-#			if data == 'oi':
-#				print("FUNCIONA!!!!!")
-#			elif data == 'kk':
-#				print("FUNCIONA DE MAIS MANO!!!!")
-#			else:
-#				print("slá")
-#
-#		except IOError:
-#			pass
-#
-#		except KeyboardInterrupt:
-#
-#			client_sock.close()
-#			server_sock.close()
-#
-#			break
+
+		print ("Accepted connection from ", client_info)
+
 
 if __name__ == '__main__':
     main()
