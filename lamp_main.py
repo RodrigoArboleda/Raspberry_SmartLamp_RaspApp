@@ -7,7 +7,7 @@ USER_MAX_CONNECT = 5
 
 TIME_VF_THREAD = 5
 
-TIME_OUT_SOCK = 5.0
+TIME_OUT_SOCK = 7200
 
 server_sock = BluetoothSocket(RFCOMM)
 server_sock.bind(("",PORT_ANY))
@@ -30,7 +30,7 @@ def connection_bluetooth(client_sock):
 	while True:
 		data = ""
 		try:
-			ready = select.select([client_sock], [], [], 10)
+			ready = select.select([client_sock], [], [], TIME_OUT_SOCK)
 			if ready[0]:
 				data = client_sock.recv(3)
 			if len(data) == 0:
@@ -38,14 +38,12 @@ def connection_bluetooth(client_sock):
 				break
 			print "received [%s]" % data
 			if data == 'oi':
-				print("FUNCIONA!!!!!")
-			elif data == 'kk':
-				print("FUNCIONA DE MAIS MANO!!!!")
+				print("call function here")
 			elif data == 'qui':
 				client_sock.close()
 				break
 			else:
-				print(data)
+				print("MSG ERROR!")
 
 		except IOError:
 			client_sock.close()
@@ -94,6 +92,14 @@ def main():
 			print ("Accepted connection from ", client_info)
 
 	except KeyboardInterrupt:
+		
+		for i in thread_list:
+			if not(i.is_alive()):
+				index = thread_list.index(i)
+				thread_list.remove(i)
+				del sock_client_list[index]
+				print("Thread finished")
+
 		for i in sock_client_list:
 			i.close()
 		server_sock.close()
