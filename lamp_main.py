@@ -6,6 +6,8 @@ USER_MAX_CONNECT = 5
 
 TIME_VF_THREAD = 5
 
+TIME_OUT_SOCK = 5.0
+
 server_sock = BluetoothSocket(RFCOMM)
 server_sock.bind(("",PORT_ANY))
 server_sock.listen(1)
@@ -21,12 +23,16 @@ advertise_service( server_sock, "LampRasp",
                     )
 
 def connection_bluetooth(client_sock):
-	while True:
+	
+	timeOut = 0
+
+	while timeOut < 1440:
+		print(timeOut)
 		try:
+			data = "!ERROR"
 			data = client_sock.recv(3)
 			if len(data) == 0: break
 			print "received [%s]" % data
-
 			if data == 'oi':
 				print("FUNCIONA!!!!!")
 			elif data == 'kk':
@@ -34,10 +40,13 @@ def connection_bluetooth(client_sock):
 			elif data == 'qui':
 				break
 			else:
-				print("sla")
+				print(data)
 
 		except IOError:
 			break
+
+		except TimeoutError:
+			timeOut = timeOut + 1
 
 		except KeyboardInterrupt:
 			break
@@ -54,7 +63,7 @@ def main():
 			print ("Waiting for connection on RFCOMM channel %d" % port)
 
 			client_sock, client_info = server_sock.accept()
-			
+			client_sock.settimeout(TIME_OUT_SOCK)
 			t = threading.Thread(target=connection_bluetooth, args=(client_sock,))
 			t.start()
 
