@@ -88,13 +88,13 @@ def main():
 
 		print ("Accepted connection from ", client_info)
 
-		except KeyboardInterrupt:
-			for i in thread_list:
-				i.stop()
-			for i in sock_client_list:
-				i.close()
-			server_sock.close()
-			exit()
+	except KeyboardInterrupt:
+		for i in thread_list:
+			i.stop()
+		for i in sock_client_list:
+			i.close()
+		server_sock.close()
+		exit()
 
 
 if __name__ == '__main__':
