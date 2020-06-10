@@ -28,26 +28,32 @@ def connection_bluetooth(client_sock):
 	client_sock.setblocking(0)
 
 	while True:
-		data = "!!E"
+		data = ""
 		try:
-			ready = select.select([client_sock], [], [], 5)
+			ready = select.select([client_sock], [], [], 10)
 			if ready[0]:
 				data = client_sock.recv(3)
 			if len(data) == 0: break
 			print "received [%s]" % data
+			else:
+				client_sock.close()
+				break
 			if data == 'oi':
 				print("FUNCIONA!!!!!")
 			elif data == 'kk':
 				print("FUNCIONA DE MAIS MANO!!!!")
 			elif data == 'qui':
+				client_sock.close()
 				break
 			else:
 				print(data)
 
 		except IOError:
+			client_sock.close()
 			break
 
 		except KeyboardInterrupt:
+			client_sock.close()
 			break
 
 
