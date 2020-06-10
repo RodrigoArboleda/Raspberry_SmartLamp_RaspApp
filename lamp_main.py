@@ -40,7 +40,7 @@ class connection_bluetooth(Thread):
 					server_sock.close()
 					break
 				else:
-					print("slá")
+					print("sla")
 
 			except IOError:
 				client_sock.close()
