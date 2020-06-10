@@ -1,4 +1,4 @@
-from threading import Thread
+import threading
 import time
 from bluetooth import *
 
@@ -20,35 +20,28 @@ advertise_service( server_sock, "LampRasp",
                    profiles = [ SERIAL_PORT_PROFILE ], 
                     )
 
-class connection_bluetooth(Thread):
+def connection_bluetooth(client_sock):
+	while True:
+		try:
+			data = client_sock.recv(3)
+			if len(data) == 0: break
+			print "received [%s]" % data
 
-	client_sock = -1
-
-	def __init__ (self, client_sock_par):
-		Thread.__init__(self)
-		client_sock = client_sock_par
-	def run(self):
-		while True:
-			try:
-				data = client_sock.recv(3)
-				if len(data) == 0: break
-				print "received [%s]" % data
-
-				if data == 'oi':
-					print("FUNCIONA!!!!!")
-				elif data == 'kk':
-					print("FUNCIONA DE MAIS MANO!!!!")
-				elif data == 'qui':
-					break
-				else:
-					print("sla")
-
-			except IOError:
+			if data == 'oi':
+				print("FUNCIONA!!!!!")
+			elif data == 'kk':
+				print("FUNCIONA DE MAIS MANO!!!!")
+			elif data == 'qui':
 				break
+			else:
+				print("sla")
 
-			except KeyboardInterrupt:
-				break
-		
+		except IOError:
+			break
+
+		except KeyboardInterrupt:
+			break
+
 
 
 def main():
@@ -62,7 +55,7 @@ def main():
 
 			client_sock, client_info = server_sock.accept()
 			
-			t = connection_bluetooth(client_sock)
+			t = threading.Thread(target=connection_bluetooth, args=(client_sock),)
 			t.start()
 
 			thread_list.append(t)
