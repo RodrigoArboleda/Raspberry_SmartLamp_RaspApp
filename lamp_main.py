@@ -1,6 +1,7 @@
 import threading
 import time
 from bluetooth import *
+import select
 
 USER_MAX_CONNECT = 5
 
@@ -24,13 +25,14 @@ advertise_service( server_sock, "LampRasp",
 
 def connection_bluetooth(client_sock):
 
-	client_sock.settimeout(TIME_OUT_SOCK)	
-	timeOut = 0
+	client_sock.setblocking(0)
 
-	while timeOut < 1440:
-		print(timeOut)
+	while True:
+		data = "!!E"
 		try:
-			data = client_sock.recv(3)
+			ready = select.select([client_sock], [], [], 5)
+			if ready[0]:
+				data = client_sock.recv(3)
 			if len(data) == 0: break
 			print "received [%s]" % data
 			if data == 'oi':
@@ -44,9 +46,6 @@ def connection_bluetooth(client_sock):
 
 		except IOError:
 			break
-
-		except TimeoutError:
-			timeOut = timeOut + 1
 
 		except KeyboardInterrupt:
 			break
