@@ -55,38 +55,38 @@ def main():
 	
 	thread_list = []
 	sock_client_list = []
+	try:
+		while True:  
 
-	while True:  
+			print ("Waiting for connection on RFCOMM channel %d" % port)
 
-		print ("Waiting for connection on RFCOMM channel %d" % port)
+			client_sock, client_info = server_sock.accept()
+			
+			t = connection_bluetooth()
+			t.start()
 
-		client_sock, client_info = server_sock.accept()
-		
-		t = connection_bluetooth()
-		t.start()
+			thread_list.append(t)
+			sock_client_list.append(client_sock)
 
-		thread_list.append(t)
-		sock_client_list.append(client_sock)
-
-		for i in thread_list:
-			if not(i.is_alive()):
-				index = thread_list.index(i)
-				thread_list.remove(i)
-				del sock_client_list[index]
-				print("Thread finished")
-
-		while len(thread_list) >= USER_MAX_CONNECT:
-			print ("Waiting for a connection to finish")
 			for i in thread_list:
 				if not(i.is_alive()):
 					index = thread_list.index(i)
 					thread_list.remove(i)
 					del sock_client_list[index]
 					print("Thread finished")
-			time.sleep(TIME_VF_THREAD)
+
+			while len(thread_list) >= USER_MAX_CONNECT:
+				print ("Waiting for a connection to finish")
+				for i in thread_list:
+					if not(i.is_alive()):
+						index = thread_list.index(i)
+						thread_list.remove(i)
+						del sock_client_list[index]
+						print("Thread finished")
+				time.sleep(TIME_VF_THREAD)
 
 
-		print ("Accepted connection from ", client_info)
+			print ("Accepted connection from ", client_info)
 
 	except KeyboardInterrupt:
 		for i in thread_list:
@@ -94,8 +94,6 @@ def main():
 		for i in sock_client_list:
 			i.close()
 		server_sock.close()
-		exit()
-
 
 if __name__ == '__main__':
     main()
