@@ -24,7 +24,7 @@ class connection_bluetooth(Thread):
 
 	def __init__ (self):
 		Thread.__init__(self)
-	def run(self, client_sock):
+	def run(self):
 		while True:
 			try:
 				data = client_sock.recv(3)
@@ -36,17 +36,14 @@ class connection_bluetooth(Thread):
 				elif data == 'kk':
 					print("FUNCIONA DE MAIS MANO!!!!")
 				elif data == 'qui':
-					client_sock.close()
 					break
 				else:
 					print("sla")
 
 			except IOError:
-				client_sock.close()
 				break
 
 			except KeyboardInterrupt:
-				client_sock.close()
 				break
 		
 
@@ -89,8 +86,6 @@ def main():
 			print ("Accepted connection from ", client_info)
 
 	except KeyboardInterrupt:
-		for i in thread_list:
-			i.stop()
 		for i in sock_client_list:
 			i.close()
 		server_sock.close()
