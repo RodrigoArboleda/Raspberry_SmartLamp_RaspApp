@@ -33,6 +33,7 @@ class connection_bluetooth(threading.Thread):
 	def run(self):
 
 		if self.client_sock != None:
+
 			self.client_sock.setblocking(0)
 
 			while True:
@@ -44,10 +45,12 @@ class connection_bluetooth(threading.Thread):
 
 					if len(data) == 0:
 						self.client_sock.close()
+						print("Thread finished")	
 						break
 
 					if data == 'quit000000':
 						self.client_sock.close()
+						print("Thread finished")
 						break
 					
 					else:
@@ -56,10 +59,12 @@ class connection_bluetooth(threading.Thread):
 
 				except IOError:
 					self.client_sock.close()
+					print("Thread finished")
 					break
 
 				except KeyboardInterrupt:
 					self.client_sock.close()
+					print("Thread finished")
 					break
 		
 		else:
@@ -77,7 +82,7 @@ def main():
 			print ("Waiting for connection on RFCOMM channel %d" % port)
 
 			client_sock, client_info = server_sock.accept()
-			t = threading.Thread(target=connection_bluetooth, args=(client_sock,))
+			t = connection_bluetooth(args=(client_sock))
 			t.start()
 
 			print ("Accepted connection from ", client_info)
@@ -90,7 +95,7 @@ def main():
 					index = thread_list.index(i)
 					thread_list.remove(i)
 					del sock_client_list[index]
-					print("Thread finished")
+					
 
 			while len(thread_list) >= USER_MAX_CONNECT:
 				print ("Waiting for a connection to finish")
@@ -99,7 +104,6 @@ def main():
 						index = thread_list.index(i)
 						thread_list.remove(i)
 						del sock_client_list[index]
-						print("Thread finished")
 				time.sleep(TIME_VF_THREAD)
 
 	except KeyboardInterrupt:
@@ -109,7 +113,6 @@ def main():
 				index = thread_list.index(i)
 				thread_list.remove(i)
 				del sock_client_list[index]
-				print("Thread finished")
 
 		for i in sock_client_list:
 			i.close()
