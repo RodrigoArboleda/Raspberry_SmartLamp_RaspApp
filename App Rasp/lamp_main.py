@@ -23,35 +23,52 @@ advertise_service( server_sock, "LampRasp",
                    profiles = [ SERIAL_PORT_PROFILE ], 
                     )
 
-def connection_bluetooth(client_sock):
+class connection_bluetooth(threading.Thread):
+		
+	def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
+		super(connection_bluetooth,self).__init__(group=group, target=target, name=name, verbose=verbose)
+		
+		self.client_sock = args
 
-	client_sock.setblocking(0)
+	def run(self):
 
-	while True:
-		data = ""
-		try:
-			ready = select.select([client_sock], [], [], TIME_OUT_SOCK)
-			if ready[0]:
-				data = client_sock.recv(3)
-			if len(data) == 0:
-				client_sock.close()
-				break
-			print "received [%s]" % data
-			if data == 'oi':
-				print("call function here")
-			elif data == 'qui':
-				client_sock.close()
-				break
-			else:
-				print("MSG ERROR!")
+		if self.client_sock != None:
 
-		except IOError:
-			client_sock.close()
-			break
+			self.client_sock.setblocking(0)
 
-		except KeyboardInterrupt:
-			client_sock.close()
-			break
+			while True:
+				data = ""
+				try:
+					ready = select.select([self.client_sock], [], [], TIME_OUT_SOCK)
+					if ready[0]:
+						data = self.client_sock.recv(10)
+
+					if len(data) == 0:
+						self.client_sock.close()
+						print("Thread finished")	
+						break
+
+					if data == 'quit000000':
+						self.client_sock.close()
+						print("Thread finished")
+						break
+					
+					else:
+						print ("received [%s]" % data)
+
+
+				except IOError:
+					self.client_sock.close()
+					print("Thread finished")
+					break
+
+				except KeyboardInterrupt:
+					self.client_sock.close()
+					print("Thread finished")
+					break
+		
+		else:
+			print("Client socket problem")
 
 
 
@@ -65,8 +82,10 @@ def main():
 			print ("Waiting for connection on RFCOMM channel %d" % port)
 
 			client_sock, client_info = server_sock.accept()
-			t = threading.Thread(target=connection_bluetooth, args=(client_sock,))
+			t = connection_bluetooth(args=(client_sock))
 			t.start()
+
+			print ("Accepted connection from ", client_info)
 
 			thread_list.append(t)
 			sock_client_list.append(client_sock)
@@ -76,7 +95,7 @@ def main():
 					index = thread_list.index(i)
 					thread_list.remove(i)
 					del sock_client_list[index]
-					print("Thread finished")
+					
 
 			while len(thread_list) >= USER_MAX_CONNECT:
 				print ("Waiting for a connection to finish")
@@ -85,11 +104,7 @@ def main():
 						index = thread_list.index(i)
 						thread_list.remove(i)
 						del sock_client_list[index]
-						print("Thread finished")
 				time.sleep(TIME_VF_THREAD)
-
-
-			print ("Accepted connection from ", client_info)
 
 	except KeyboardInterrupt:
 		
@@ -98,7 +113,6 @@ def main():
 				index = thread_list.index(i)
 				thread_list.remove(i)
 				del sock_client_list[index]
-				print("Thread finished")
 
 		for i in sock_client_list:
 			i.close()
