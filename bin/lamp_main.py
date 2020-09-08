@@ -20,7 +20,7 @@ TIME_OUT_SOCK = 7200
 #)
 
 
-sem = thread.allocate_lock()
+sem = threading.Lock()
 
 server_sock = BluetoothSocket(RFCOMM)
 server_sock.bind(("",PORT_ANY))
@@ -68,15 +68,15 @@ class connection_bluetooth(threading.Thread):
 					
 					else:
 						print ("received [%s]" % data)
-						r = int(data[2:4], 16)
-						g = int(data[4:6], 16)
-						b = int(data[6:8], 16)
+						a = float(int(data[2:4], 16))/255
+						r = int(data[4:6], 16)
+						g = int(data[6:8], 16)
+						b = int(data[8:10], 16)
 						
-						#a = data[8:10]
 						#leds_lamp.brightness = a
 						
 						sem.acquire()
-						print(r, g, b)
+						print(r, g, b, a)
 						#leds_lamp.fill((r, g, b))
 						#leds_lamp.show
 						sem.release()
