@@ -2,12 +2,25 @@ import threading
 import time
 from bluetooth import *
 import select
+#import board
+#import neopixel
 
 USER_MAX_CONNECT = 5
 
 TIME_VF_THREAD = 5
 
 TIME_OUT_SOCK = 7200
+
+#led_pin = board.NEOPIXEL
+#num_leds = 10
+#ORDER = neopixel.RGB
+
+#leds_lamp = neopixel.NeoPixel(
+#    led_pin, num_leds, brightness=0.2, auto_write=False, pixel_order=ORDER
+#)
+
+
+sem = thread.allocate_lock()
 
 server_sock = BluetoothSocket(RFCOMM)
 server_sock.bind(("",PORT_ANY))
@@ -55,6 +68,18 @@ class connection_bluetooth(threading.Thread):
 					
 					else:
 						print ("received [%s]" % data)
+						r = int(data[2:4], 16)
+						g = int(data[4:6], 16)
+						b = int(data[6:8], 16)
+						
+						#a = data[8:10]
+						#leds_lamp.brightness = a
+						
+						sem.acquire()
+						print(r, g, b)
+						#leds_lamp.fill((r, g, b))
+						#leds_lamp.show
+						sem.release()
 
 
 				except IOError:
