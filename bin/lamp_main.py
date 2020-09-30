@@ -11,12 +11,12 @@ TIME_VF_THREAD = 5
 
 TIME_OUT_SOCK = 7200
 
-#led_pin = board.NEOPIXEL
+#led_pin = board.D18
 #num_leds = 10
 #ORDER = neopixel.RGB
 
 #leds_lamp = neopixel.NeoPixel(
-#    led_pin, num_leds, brightness=0.2, auto_write=False, pixel_order=ORDER
+#    led_pin, num_leds, brightness=1.0, auto_write=False, pixel_order=ORDER
 #)
 
 
