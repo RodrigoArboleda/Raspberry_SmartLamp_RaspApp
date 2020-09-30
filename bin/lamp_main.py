@@ -57,7 +57,7 @@ class connection_bluetooth(threading.Thread):
 
 			time = 0
 
-			while time != TIME_OUT_SOCK:
+			while time < TIME_OUT_SOCK:
 				
 				data = ""
 				
@@ -68,9 +68,6 @@ class connection_bluetooth(threading.Thread):
 						data = self.client_sock.recv(10)
 
 					if data == 'quit000000':
-						time = 0
-						self.client_sock.close()
-						print("Thread finished")
 						break
 					
 					elif len(data) == 10:
@@ -97,16 +94,14 @@ class connection_bluetooth(threading.Thread):
 						time = 0
 				
 				except Exception as e:
-					self.client_sock.close()
 					print(e)
-					print("Thread finished")
 					break
 
 				if self.stopped():
 					break
 
-			print("Thread finished")
 			self.client_sock.close()	
+			print("Thread finished")
 		
 		else:
 			print("Client socket problem")
