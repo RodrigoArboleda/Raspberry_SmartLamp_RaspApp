@@ -39,9 +39,15 @@ advertise_service( server_sock, "LampRasp",
 class connection_bluetooth(threading.Thread):
 		
 	def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
-		super(connection_bluetooth,self).__init__(group=group, target=target, name=name, verbose=verbose)
-		
+		super(connection_bluetooth,self).__init__(group=group, target=target, name=name, verbose=verbose)		
 		self.client_sock = args
+		self._stop_event = threading.Event()
+	
+	def stop(self):
+		self._stop_event.set()
+
+	def stopped(self):
+		return self._stop_event.is_set()
 
 	def run(self):
 
@@ -49,48 +55,58 @@ class connection_bluetooth(threading.Thread):
 
 			self.client_sock.setblocking(0)
 
-			while True:
+			time = 0
+
+			while time != TIME_OUT_SOCK:
+				
 				data = ""
+				
 				try:
-					ready = select.select([self.client_sock], [], [], TIME_OUT_SOCK)
+					ready = select.select([self.client_sock], [], [], 1)
+					
 					if ready[0]:
 						data = self.client_sock.recv(10)
 
-					if len(data) == 0:
-						self.client_sock.close()
-						print("Thread finished")	
-						break
-
 					if data == 'quit000000':
+						time = 0
 						self.client_sock.close()
 						print("Thread finished")
 						break
 					
-					else:
+					elif len(data) == 10:
 						print ("received [%s]" % data)
 						a = float(int(data[2:4], 16))/255
 						r = int(data[4:6], 16)
 						g = int(data[6:8], 16)
 						b = int(data[8:10], 16)
-						
-						#leds_lamp.brightness = a
-						
+												
 						sem.acquire()
 						print(r, g, b, a)
+						#leds_lamp.brightness = a
 						#leds_lamp.fill((r, g, b))
 						#leds_lamp.show
 						sem.release()
+					
+					elif len(data) > 0 and len(data) < 10:
+						print("Error receiving message")
 
-
-				except IOError:
+					if len(data) == 0:
+						time = time + 1
+					
+					else:
+						time = 0
+				
+				except Exception as e:
 					self.client_sock.close()
+					print(e)
 					print("Thread finished")
 					break
 
-				except KeyboardInterrupt:
-					self.client_sock.close()
-					print("Thread finished")
+				if self.stopped():
 					break
+
+			print("Thread finished")
+			self.client_sock.close()	
 		
 		else:
 			print("Client socket problem")
@@ -133,14 +149,26 @@ def main():
 
 	except KeyboardInterrupt:
 		
+		print("Ending program ...")
+
 		for i in thread_list:
 			if not(i.is_alive()):
 				index = thread_list.index(i)
 				thread_list.remove(i)
 				del sock_client_list[index]
+		
+		while(len(thread_list) == 0):
+		
+			for i in thread_list:
+				i.stop()
+				i.join()
 
-		for i in sock_client_list:
-			i.close()
+			for i in thread_list:
+				if not(i.is_alive()):
+					index = thread_list.index(i)
+					thread_list.remove(i)
+					del sock_client_list[index]
+
 		server_sock.close()
 
 if __name__ == '__main__':
