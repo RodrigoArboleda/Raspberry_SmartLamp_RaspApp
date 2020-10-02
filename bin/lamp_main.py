@@ -39,7 +39,7 @@ advertise_service( server_sock, "LampRasp",
 class connection_bluetooth(threading.Thread):
 		
 	def __init__(self, group=None, target=None, name=None, args=(), kwargs=None, verbose=None):
-		super(connection_bluetooth,self).__init__(group=group, target=target, name=name, verbose=verbose)		
+		super(connection_bluetooth,self).__init__(group=group, target=target, name=name)		
 		self.client_sock = args
 		self._stop_event = threading.Event()
 	
