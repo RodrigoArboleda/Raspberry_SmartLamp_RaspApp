@@ -2,8 +2,8 @@ import threading
 import time
 from bluetooth import *
 import select
-#import board
-#import neopixel
+import board
+import neopixel
 
 USER_MAX_CONNECT = 5
 
@@ -11,13 +11,13 @@ TIME_VF_THREAD = 5
 
 TIME_OUT_SOCK = 7200
 
-#led_pin = board.D18
-#num_leds = 10
-#ORDER = neopixel.RGB
+led_pin = board.D18
+num_leds = 10
+ORDER = neopixel.RGB
 
-#leds_lamp = neopixel.NeoPixel(
-#    led_pin, num_leds, brightness=1.0, auto_write=False, pixel_order=ORDER
-#)
+leds_lamp = neopixel.NeoPixel(
+    led_pin, num_leds, brightness=1.0, auto_write=False, pixel_order=ORDER
+)
 
 
 sem = threading.Lock()
@@ -80,8 +80,8 @@ class connection_bluetooth(threading.Thread):
 						sem.acquire()
 						print(r, g, b, a)
 						#leds_lamp.brightness = a
-						#leds_lamp.fill((r, g, b))
-						#leds_lamp.show
+						leds_lamp.fill((r, g, b))
+						leds_lamp.show
 						sem.release()
 					
 					elif len(data) > 0 and len(data) < 10:
