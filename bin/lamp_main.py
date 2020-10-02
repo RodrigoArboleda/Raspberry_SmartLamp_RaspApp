@@ -152,17 +152,15 @@ def main():
 				thread_list.remove(i)
 				del sock_client_list[index]
 		
-		while(len(thread_list) == 0):
-		
-			for i in thread_list:
-				i.stop()
-				i.join()
+		for i in thread_list:
+			i.stop()
+			i.join()
 
-			for i in thread_list:
-				if not(i.is_alive()):
-					index = thread_list.index(i)
-					thread_list.remove(i)
-					del sock_client_list[index]
+		for i in thread_list:
+			if not(i.is_alive()):
+				index = thread_list.index(i)
+				thread_list.remove(i)
+				del sock_client_list[index]
 
 		server_sock.close()
 
