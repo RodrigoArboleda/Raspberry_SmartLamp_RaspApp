@@ -11,6 +11,8 @@ TIME_VF_THREAD = 5
 
 TIME_OUT_SOCK = 7200
 
+TIME_CHANGE_COLOR = 1200 # milisegundos
+
 led_pin = board.D18
 num_leds = 10
 ORDER = neopixel.RGB
@@ -35,6 +37,36 @@ advertise_service( server_sock, "LampRasp",
                    service_classes = [ uuid, SERIAL_PORT_CLASS ],
                    profiles = [ SERIAL_PORT_PROFILE ], 
                     )
+
+cor_a_atual = 1.0
+cor_r_atual = 255
+cor_g_atual = 255
+cor_b_atual = 255
+
+
+def change_color(a, r, g, b):
+
+	r_change = (cor_r_atual - r)/(TIME_CHANGE_COLOR/10)
+	g_change = (cor_g_atual - g)/(TIME_CHANGE_COLOR/10)
+	b_change = (cor_b_atual - b)/(TIME_CHANGE_COLOR/10)
+
+	for i in range(TIME_CHANGE_COLOR/10):
+		
+		cor_r_atual = cor_r_atual + int(r_change*i)
+		cor_g_atual = cor_g_atual + int(g_change*i)
+		cor_b_atual = cor_b_atual + int(b_change*i)
+
+		leds_lamp.fill(cor_r_atual, cor_g_atual, cor_b_atual)
+		leds_lamp.show()
+		time.sleep(0.01)
+	
+	cor_r_atual = r
+	cor_g_atual = g
+	cor_b_atual = b
+
+	leds_lamp.fill(cor_r_atual, cor_g_atual, cor_b_atual)
+	leds_lamp.show()
+
 
 class connection_bluetooth(threading.Thread):
 		
@@ -80,8 +112,9 @@ class connection_bluetooth(threading.Thread):
 						sem.acquire()
 						print(r, g, b, a)
 						#leds_lamp.brightness = a
-						leds_lamp.fill((r, g, b))
-						leds_lamp.show
+						#leds_lamp.fill((r, g, b))
+						#leds_lamp.show
+						change_color(a, r, g, b)
 						sem.release()
 					
 					elif len(data) > 0 and len(data) < 10:
